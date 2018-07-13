@@ -7,7 +7,7 @@ A line-to-object csv reader.
   
 
 ## About
-The *csv-object package* is a csv file reader which use the header (file's first line) as template for building complex objects structure.
+The *csv-object package* is a csv file reader which use the header (file's first line) as template for building complex objects structures.
 
   
 
