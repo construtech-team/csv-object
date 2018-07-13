@@ -51,7 +51,7 @@ module.exports = class CsvObject {
     }
 
     onFinish(cb){
-        readerEvent.on('finish', (() => cb(this.index)).bind(this));        
+        readerEvent.on('finish', (() => cb(--this.index)).bind(this));        
     }    
 
     read(cb){
@@ -72,8 +72,9 @@ module.exports = class CsvObject {
                         return;
                     } else {
                         this.setModel(cols);
-                        
-                        return cb(this.model, ++this.index);
+                        this.index++;
+
+                        return cb(this.model, parseInt(this.index - 2));
                     }                     
                 }
             })

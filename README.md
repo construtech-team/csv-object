@@ -38,11 +38,11 @@ reader
 	.onStart(() => {
 		console.log('Starting to read!\n');
 	})
-	.forEach((objs, i) => {
+	.forEach((objs, index) => {
 		console.log(JSON.stringify(objs, null, 4));
 	})
-	.onFinish(qtd  => {
-		console.log(`\nLines: ${qtd}`);
+	.onFinish(tot  => {
+		console.log(`\nTotal of Objects: ${tot}`);
 	});
 ```
 ***> output***
@@ -77,7 +77,7 @@ Starting to read!
     }
 }
 
-Lines: 4
+Total of Objects: 3
 ```
 
 
