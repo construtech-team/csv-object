@@ -1,5 +1,5 @@
 # CSV Object
-A simple reader to parse csv lines into objects template driven structures.
+A line-to-object csv reader.
 
 ## Install
 	$ npm install csv-object --save
@@ -7,7 +7,7 @@ A simple reader to parse csv lines into objects template driven structures.
   
 
 ## About
-The *csv-object package* is a csv file reader which use the header (file's first line) as template for creating an object structure output.
+The *csv-object package* is a csv file reader which use the header (file's first line) as template for building complex objects structure.
 
   
 
