@@ -1,21 +1,19 @@
+const deepmerge = require('deepmerge');
 const lineReader = require('line-reader');
+
 const { EventEmitter } = require('events');
 const readerEvent = new EventEmitter();
 
-module.exports = class Csv2Object {
+module.exports = class CsvObject {
     constructor(config){
         this.index = 0;        
         this.file = '';
         this.reader = {};        
         this.separator = config.separator || /;(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)/;
         this.encoding = config.separator || 'utf-8';
-        this.objects = {};
-        this.models = {};
-        this.model = config.model || {
-            separator: ".",
-            remove: "_"
-        }        
-        
+        this.model = {};
+        this.header = [];
+
         this.setFile(config.file);
         this.init();
     }
@@ -46,7 +44,7 @@ module.exports = class Csv2Object {
         return this;
     }
 
-    parseLine(cb){
+    forEach(cb){
         readerEvent.on('ready', (() => this.read(cb)).bind(this));
 
         return this;
@@ -66,10 +64,18 @@ module.exports = class Csv2Object {
             .then(line => {
                 if(line){
                     let cols = line.toString().split(this.separator);
-                    this.index === 0 ? this.setModels(cols) : this.setObjects(cols);
+                    
+                    if(this.index === 0){
+                        this.setHeader(cols);
+                        this.index++;
+                        
+                        return;
+                    } else {
+                        this.setModel(cols);
+                        
+                        return cb(this.model, ++this.index);
+                    }                     
                 }
-                
-                return cb(this.objects, ++this.index);
             })
             .then(() => this.read(cb));                
         } else {
@@ -81,17 +87,19 @@ module.exports = class Csv2Object {
         }   
     }
 
-    setObjects(cols){
-        this.objects = cols;
+    setModel(cols){
+        const arrObjects = this.header.map((colHeader, indexHeader) => {
+            const keys = colHeader.split('.').reverse();
+
+            return keys.reduce((prevKey, crrKey) => Object.assign({
+                [crrKey]: prevKey
+            }), cols[indexHeader]);
+        });
+        
+        this.model = deepmerge.all(arrObjects);        
     }
 
-    setModels(cols){        
-        this.objects = cols.reduce((prev, col) => {
-            return Object.assign(prev, {
-                [col.split('.').unshift()]: {}
-            }, {});
-        });
-
-        console.log(console.log(cols))
+    setHeader(cols){
+        this.header = cols;
     }
 }

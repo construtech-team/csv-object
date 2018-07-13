@@ -1,15 +1,17 @@
 {
-  "name": "csv2object",
+  "name": "csv-object",
   "version": "0.0.1",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node main.js",
+    "start": "node .",
+    "demo": "node demo.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Rodrigo Brabo <brabo.rodrigo@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "deepmerge": "^2.1.1",
     "line-reader": "^0.4.0"
   }
 }
