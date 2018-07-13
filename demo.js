@@ -1,4 +1,4 @@
-const CsvObject = require('.');   
+const CsvObject = require('.');
 
 const reader = new CsvObject({ file: './demo.csv' });
 

@@ -1,5 +1,4 @@
-material.nome;material.regioes.uf;material.regioes.custo.medio;unidade_habitacional.numero;unidade_habitacional.empreendimento.nome;unidade_habitacional.empreendimento.incorporadora.nome
-manta impermeabilizadora;pa;10.5;102;ilha dos macucos;alpha ville
-tinta acrílica;pa;3.0;31;ilha dos macucos;alpha ville
-cal;sc;1.75;102;residencial olimpus;ebm
-cimento;rs;4.75;102;residencial olimpus;ebm
+item.nome;item.custo;mao_de_obra.nome
+tinta fosca;10.5;pintor
+tinta acrílica;3.0;pintor
+cimento;20.0;pedreiro
