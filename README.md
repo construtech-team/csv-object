@@ -30,9 +30,9 @@ cimento;20.0;pedreiro
 ```
 ***> index.js***
 ```javascript
-const  CsvObject = require('csv-object');
+const CsvObject = require('csv-object');
 
-const  reader = new  CsvObject({ file:  './demo.csv' });
+const reader = new  CsvObject({ file:  './demo.csv' });
 
 reader
 	.onStart(() => {
