@@ -10,7 +10,7 @@ module.exports = class CsvObject {
         this.file = '';
         this.reader = {};        
         this.separator = config.separator || /;(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)/;
-        this.encoding = config.separator || 'utf-8';
+        this.encoding = config.encoding || 'utf-8';
         this.model = {};
         this.header = [];
 
