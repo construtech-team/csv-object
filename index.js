@@ -81,11 +81,11 @@ module.exports = class CsvObject {
             })
             .then(() => this.read(cb));                
         } else {
-            this.reader.close(function(err) {
+            this.reader.close((function(err) {
                 if (err) throw err;
-
+                
                 this.readerEvent.emit('finish');
-            });
+            }).bind(this));
         }   
     }
 
