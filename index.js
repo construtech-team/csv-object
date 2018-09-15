@@ -2,10 +2,11 @@ const deepmerge = require('deepmerge');
 const lineReader = require('line-reader');
 
 const { EventEmitter } = require('events');
-const readerEvent = new EventEmitter();
+
 
 module.exports = class CsvObject {
     constructor(config){
+        this.readerEvent = new EventEmitter();
         this.index = 0;        
         this.file = '';
         this.reader = {};        
@@ -46,17 +47,17 @@ module.exports = class CsvObject {
     }
 
     forEach(cb){
-        readerEvent.on('ready', (() => this.read(cb)).bind(this));
+        this.readerEvent.on('ready', (() => this.read(cb)).bind(this));
 
         return this;
     }
 
     onFinish(cb){
-        readerEvent.on('finish', (() => cb(this.index)).bind(this));        
+        this.readerEvent.on('finish', (() => cb(this.index)).bind(this));        
     }    
 
     read(cb){
-        if (this.reader.hasNextLine()) {            
+        if (this.reader.hasNextLine()) {
             return new Promise(resolve => {
                 this.reader.nextLine(function(err, line) {
                     resolve(line)
@@ -83,7 +84,7 @@ module.exports = class CsvObject {
             this.reader.close(function(err) {
                 if (err) throw err;
 
-                readerEvent.emit('finish');
+                this.readerEvent.emit('finish');
             });
         }   
     }
