@@ -1,6 +1,20 @@
 const CsvObject = require('.');
 
-const reader = new CsvObject({ file: './demo.csv' });
+const formatName = name => {
+	return `${name} is an idiot!`
+}
+
+const reader = new CsvObject({ 
+	file: './demo.csv',
+	header: [
+		'item.nome',
+		'item.custo',
+		'mao_de_obra.nome'
+	],
+	format: [{
+		'item.nome': formatName
+	}]
+});
 
 reader
 	.onStart(() => {

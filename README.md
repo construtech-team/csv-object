@@ -17,6 +17,7 @@ The *csv-object package* is a csv file reader which use the header (file's first
 | file | string | `''` |
 | separator | regex | `/;(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)/` |
 | encoding | string | `utf-8` |
+| header | array | `[]` |
   
 
 ## Demo

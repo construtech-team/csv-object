@@ -12,7 +12,8 @@ module.exports = class CsvObject {
         this.separator = config.separator || /;(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)/;
         this.encoding = config.encoding || 'utf-8';
         this.model = {};
-        this.header = [];
+        this.header = config.header || [];
+        this.format = config.format;
 
         this.setFile(config.file);
         this.init();
@@ -51,7 +52,7 @@ module.exports = class CsvObject {
     }
 
     onFinish(cb){
-        readerEvent.on('finish', (() => cb(--this.index)).bind(this));        
+        readerEvent.on('finish', (() => cb(this.index)).bind(this));        
     }    
 
     read(cb){
@@ -65,16 +66,15 @@ module.exports = class CsvObject {
                 if(line){
                     let cols = line.toString().split(this.separator);
                     
-                    if(this.index === 0){
+                    if(this.index === 0 && this.header.length === 0){
                         this.setHeader(cols);
                         this.index++;
                         
                         return;
                     } else {
                         this.setModel(cols);
-                        this.index++;
-
-                        return cb(this.model, parseInt(this.index - 2));
+                        
+                        return cb(this.model, parseInt(++this.index));
                     }                     
                 }
             })
@@ -90,15 +90,21 @@ module.exports = class CsvObject {
 
     setModel(cols){
         const arrObjects = this.header.map((colHeader, indexHeader) => {
-            const keys = colHeader.split('.').reverse();
+            const fn = this.format instanceof Array
+                ? this.format.find(key => key[colHeader])
+                : { [colHeader] : this.format };
 
-            return keys.reduce((prevKey, crrKey) => Object.assign({
-                [crrKey]: prevKey
-            }), cols[indexHeader]);
+            const keys = colHeader.split('.').reverse();
+            
+            return keys.reduce((prevKey, crrKey) => {
+                return {
+                    [crrKey]: typeof prevKey === 'string' && fn ? fn[colHeader](prevKey) : prevKey
+                }
+            }, cols[indexHeader]);
         });
-        
-        this.model = deepmerge.all(arrObjects);        
-    }
+    
+        this.model = deepmerge.all(arrObjects);
+    }    
 
     setHeader(cols){
         this.header = cols;
