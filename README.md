@@ -18,6 +18,7 @@ The *csv-object package* is a csv file reader which use the header (file's first
 | separator | regex | `/;(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)/` |
 | encoding | string | `utf-8` |
 | header | array | `[]` |
+| format | array<object> or fn | null |
   
 
 ## Demo
@@ -80,7 +81,104 @@ Starting to read!
 
 Total of Objects: 3
 ```
+As you might see at the example above, the csv-object gets the first line of our csv file and build an nested object using 'dots' as reference to do it.
 
+That first line is not really necessary. We may want to let our csv file clear and remove the first line. But, of course we still need to provide a reference to build our output object. To do so, we must use the property a `header` and put our desired structure into an array, which the index will let our reader to understand 'which value belong to which object leaf'.
+
+To the next example, let's remove the first line, change the separator and put all options together.
+
+***> demo.csv***
+```
+tinta fosca,10.5,pintor
+tinta acrílica,3.0,pintor
+cimento,20.0,pedreiro
+```
+***> index.js***
+```javascript
+const CsvObject = require('csv-object');
+
+const reader = new  CsvObject({ 
+    file: './demo.csv',
+    separator: ',',
+    encoding: 'latin1',
+	header: [
+		'item.nome',
+		'item.custo',
+		'mao_de_obra.nome'
+	],
+	format: [{
+		'mao_de_obra.nome': formatName
+	}]
+});
+
+const formatName = name => {
+    return `...é um bom ${name}`;
+}
+
+reader
+	.onStart(() => {
+		console.log('Starting to read!\n');
+	})
+	.forEach((objs, index) => {
+		console.log(JSON.stringify(objs, null, 4));
+	})
+	.onFinish(tot  => {
+		console.log(`\nTotal of Objects: ${tot}`);
+	});
+```
+***> output***
+```json
+Starting to read!
+
+{
+    "item": {
+        "nome": "tinta fosca",
+        "custo": "10.5"
+    },
+    "mao_de_obra": {
+        "nome": "...é um bom pintor"
+    }
+}
+{
+    "item": {
+        "nome": "tinta acrílica",
+        "custo": "3.0"
+    },
+    "mao_de_obra": {
+        "nome": "...é um bom pintor"
+    }
+}
+{
+    "item": {
+        "nome": "cimento",
+        "custo": "20.0"
+    },
+    "mao_de_obra": {
+        "nome": "...é um bom pedreiro"
+    }
+}
+
+Total of Objects: 3
+```
+A few things are happening here. First, as much we strongly recommend you to use regex to separators, you are not obligated to do it. The header was introduced to you as told before and, finally, a new property was show: format.
+The `format` property does what its name means: it format an input value and transform the output. This option can be used to defining property by property as an array of object (such as you can see above) or for all of the columns.
+To test it, instead of define an array, you should just pass the formater function and the reader will apply it to every column.
+
+```javascript
+const reader = new  CsvObject({ 
+    file: './demo.csv',
+    separator: ',',
+    encoding: 'latin1',
+	header: [
+		'item.nome',
+		'item.custo',
+		'mao_de_obra.nome'
+	],
+	format: formatName
+});
+```
+
+That's it! If you have some questions or Suggestions, let us know.
 
 ## License
 ```
