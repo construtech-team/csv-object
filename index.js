@@ -29,7 +29,7 @@ module.exports = class CsvObject {
                 
                 this.reader = reader;
 
-                readerEvent.emit('ready');
+                this.readerEvent.emit('ready');
             }).bind(this))
     }
 
