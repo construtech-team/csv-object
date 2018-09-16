@@ -1,6 +1,6 @@
 {
   "name": "csv-object",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -12,6 +12,7 @@
   "license": "MIT",
   "dependencies": {
     "deepmerge": "^2.1.1",
-    "line-reader": "^0.4.0"
+    "line-reader": "^0.4.0",
+    "require-files": "0.0.7"
   }
 }

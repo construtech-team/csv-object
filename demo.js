@@ -1,11 +1,10 @@
 const CsvObject = require('.');
 
 const formatName = name => {
-	return `${name} is an idiot!`
+	return `${name} is cool!`
 }
 
 const reader = new CsvObject({ 
-	file: './demo.csv',
 	header: [
 		'item.nome',
 		'item.custo',
@@ -13,7 +12,12 @@ const reader = new CsvObject({
 	],
 	format: [{
 		'item.nome': formatName
-	}]
+	}],
+	files: {
+		src: 'files/queue/*.csv',
+		dest: 'files/done',
+		watch: 1000
+	}
 });
 
 reader
