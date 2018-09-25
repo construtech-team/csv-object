@@ -6,10 +6,12 @@ const { EventEmitter } = require('events');
 
 module.exports = class CsvObject {
     constructor(config){
-        this.file = config.file;
-        this.files = config.files;
+        this._callbackStart;
+        this._callbackFinish;
         this.readerEvent = new EventEmitter();
-        this.index = 0;
+        this.file = config.file;
+        this.files = config.files;        
+        this.indexRows = 0;
         this.reader = {};        
         this.separator = config.separator || /;(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)/;
         this.encoding = config.encoding || 'utf-8';
@@ -42,40 +44,49 @@ module.exports = class CsvObject {
         lineReader
             .open(file, {
                 encoding : this.encoding
-            }, (function(err, reader) {
+            }, ((err, reader) => {
                 if (err) throw err;
                 
                 this.reader = reader;
+                
+                this._callbackStart(file);
 
                 this.readerEvent.emit('ready');
             }).bind(this))
     }
     
     getFiles(){
+        let files = [];
+        
         if(this.files){
             if(this.files.src instanceof Array){
-                return requireFiles.get(this.files.src);
+                files = requireFiles.get(this.files.src);
             } 
             else if(typeof this.files.src == 'string'){
-                return requireFiles.get([this.files.src]);
+                files = requireFiles.get([this.files.src]);
             }        
             else if(this.files instanceof Array){
-                return requireFiles.get(this.files);
+                files = requireFiles.get(this.files);
             } 
             else if(typeof this.files == 'string'){
-                return requireFiles.get([this.files]);
+                files = requireFiles.get([this.files]);
             }
         }
-        else {
-            return [];
-        }
+        
+        return files;
     }
   
     watch(files){
-        if(files.length > 0){
+        this.indexRows = 0;
+        
+        if(files.length > 0){            
             this.open(files[0])
 
             this.readerEvent.on('finish', (() => {
+                this.readerEvent.removeAllListeners('finish');
+                    
+                this._callbackFinish(this.indexRows);
+
                 this.moveToDone(files.shift(), this.files.dest, () => this.watch(files));                
             }).bind(this));
         }
@@ -87,12 +98,21 @@ module.exports = class CsvObject {
     }
 
     iterate(files){
-        if(files.length > 0){
-            this.open(files[0])
+        this.indexRows = 0;
+        
+        if(files.length > 0){            
+            this.open(files[0]);
 
             this.readerEvent.on('finish', (() => {
-                files.shift();
-                this.iterate(files);
+                if(files.length > 0){
+                    this.readerEvent.removeAllListeners('finish');
+                    
+                    this._callbackFinish(this.indexRows);
+
+                    files.shift(); 
+                    
+                    this.iterate(files);
+                }
             }).bind(this));
         }
     }
@@ -109,29 +129,29 @@ module.exports = class CsvObject {
     }
 
     onStart(cb){
-        cb(this.file);
+        this._callbackStart = cb;      
 
         return this;
     }
 
     forEach(cb){
-        this.readerEvent.on('ready', (() => this.read(cb)).bind(this));
+        this.readerEvent.on('ready', (() => {            
+            this.read(cb)
+        }).bind(this));
 
         return this;
     }
 
     onFinish(cb){
-        this.readerEvent.on('finish', (() => {
-            cb(this.index)
-            
-            this.index = 0;
-        }).bind(this));
+        this._callbackFinish = cb;
+
+        return this;
     }    
 
     read(cb){
         if (this.reader.hasNextLine()) {
             return new Promise(resolve => {
-                this.reader.nextLine(function(err, line) {
+                this.reader.nextLine((err, line) => {
                     resolve(line)
                 });
             })
@@ -139,25 +159,25 @@ module.exports = class CsvObject {
                 if(line){
                     let cols = line.toString().split(this.separator);
                     
-                    if(this.index === 0 && this.header.length === 0){
+                    if(this.indexRows === 0 && this.header.length === 0){
                         this.setHeader(cols);
-                        this.index++;
+                        this.indexRows++;
                         
                         return;
                     } else {
                         this.setModel(cols);
                         
-                        return cb(this.model, parseInt(++this.index));
+                        return cb(this.model, parseInt(++this.indexRows));
                     }                     
                 }
             })
             .then(() => this.read(cb));                
         } else {
-            this.reader.close((function(err) {
+            this.reader.close(((err) => {
                 if (err) throw err;
-                
+
                 this.readerEvent.emit('finish');
-            }).bind(this));
+            }).bind(this));            
         }   
     }
 

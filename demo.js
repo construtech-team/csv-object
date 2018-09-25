@@ -21,12 +21,12 @@ const reader = new CsvObject({
 });
 
 reader
-	.onStart(() => {
-		console.log('Starting to read!\n');
+	.onStart(file => {
+		console.log(`Starting to read: ${file}`);
 	})
 	.forEach((objs, index) => {
-		console.log(JSON.stringify(objs, null, 4));
+		// console.log(JSON.stringify(objs, null, 4));
 	})
 	.onFinish(tot  => {
-		console.log(`\nTotal of Objects: ${tot}`);
+		console.log(`Total of Objects: ${tot}\n`);
 	});
