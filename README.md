@@ -1,27 +1,33 @@
 # CSV Object
-A line-to-object csv reader.
+A super csv file reader/object parser.
 
 ## Install
 	$ npm install csv-object --save
 
-  
-
-## About
-The *csv-object package* is a csv file reader which use the header (file's first line) as template for building complex objects structures.
-
-  
-
-## Config
-| name | type | default value |
-|--|--|--|
-| file | String | null |
-| files | [String, Array, Object] | null |
+## Options
+| name | type | default value | | default value |
+|--|--|--|--|
+| file | String | null | single path to specific file. `/path/to/file.csv` |
+| files | [String, Array, Object] | null | accept single and multiple pattern file paths with wildcards such: `/path/to/*.csv`, `['/path/to/*.p1.csv', '/path/to/*.p2.csv']`. This option also allows you to watch a directory such as ```javascript 
+    files: {
+		src: 'files/queue/*.csv',
+		// dest: 'files/done',
+		// watch: 1000
+	}```
+.  |
 | separator | regex | `/;(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)/` |
 | encoding | String | `utf-8` |
 | header | Array | `[]` |
 | firstLine | Boolean | `[]` |
 | format | Array<object> or fn | null |
   
+## Methods
+| name | required | description | response |
+|--|--|--|--|
+| onStart | false | callback executed before each reading | absolute file path with name |
+| forEach | true | callback executed on each line of the files | line parsed into object and line index |
+| onFinish | false | callback executed after each reading | total of lines read |
+
 
 ## Demo
 

@@ -5,15 +5,17 @@ const formatName = name => {
 }
 
 const reader = new CsvObject({ 
-	// header: [
-	// 	'item.nome',
-	// 	'item.custo',
-	// 	'mao_de_obra.nome'
-	// ],
-	// format: [{
-	// 	'item.nome': formatName
-	// }],
-	// firstLine: false,
+	separator: ',',
+	encoding: 'latin1',
+	header: [
+		'item.nome',
+		'item.custo',
+		'mao_de_obra.nome'
+	],
+	format: [{
+		'item.nome': formatName
+	}],
+	firstLine: false,	
 	files: {
 		src: 'files/queue/*.csv',
 		// dest: 'files/done',
