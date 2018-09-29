@@ -18,8 +18,8 @@ const reader = new CsvObject({
 	firstLine: false,	
 	files: {
 		src: 'files/queue/*.csv',
-		// dest: 'files/done',
-		// watch: 1000
+		dest: 'files/done',
+		watch: 1000
 	}
 });
 
