@@ -14,11 +14,13 @@ The *csv-object package* is a csv file reader which use the header (file's first
 ## Config
 | name | type | default value |
 |--|--|--|
-| file | string | `''` |
+| file | String | null |
+| files | [String, Array, Object] | null |
 | separator | regex | `/;(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)/` |
-| encoding | string | `utf-8` |
-| header | array | `[]` |
-| format | array<object> or fn | null |
+| encoding | String | `utf-8` |
+| header | Array | `[]` |
+| firstLine | Boolean | `[]` |
+| format | Array<object> or fn | null |
   
 
 ## Demo
@@ -34,17 +36,17 @@ cimento;20.0;pedreiro
 ```javascript
 const CsvObject = require('csv-object');
 
-const reader = new  CsvObject({ file:  './demo.csv' });
+const reader = new CsvObject({ file:  './demo.csv' });
 
 reader
-	.onStart(() => {
-		console.log('Starting to read!\n');
+	.onStart(file => {
+		console.log(`Starting to read: ${file}`);
 	})
 	.forEach((objs, index) => {
 		console.log(JSON.stringify(objs, null, 4));
 	})
 	.onFinish(tot  => {
-		console.log(`\nTotal of Objects: ${tot}`);
+		console.log(`Total of Objects: ${tot}\n`);
 	});
 ```
 ***> output***

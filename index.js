@@ -17,7 +17,9 @@ module.exports = class CsvObject {
         this.encoding = config.encoding || 'utf-8';
         this.model = {};
         this.header = config.header || [];
+        this.headerFromFile = this.header.length > 0 ? false : true;
         this.format = config.format;
+        this.firstLine = config.firstLine != null ? config.firstLine : true;
 
         this.init();
     }
@@ -41,6 +43,11 @@ module.exports = class CsvObject {
     }
 
     open(file){
+        this.model = {};
+
+        if(this.headerFromFile)
+            this.header = [];
+
         lineReader
             .open(file, {
                 encoding : this.encoding
@@ -49,7 +56,7 @@ module.exports = class CsvObject {
                 
                 this.reader = reader;
                 
-                this._callbackStart(file);
+                this._callbackStart && this._callbackStart(file);
 
                 this.readerEvent.emit('ready');
             }).bind(this))
@@ -85,7 +92,7 @@ module.exports = class CsvObject {
             this.readerEvent.on('finish', (() => {
                 this.readerEvent.removeAllListeners('finish');
                     
-                this._callbackFinish(this.indexRows);
+                this._callbackFinish && this._callbackFinish(this.indexRows);
 
                 this.moveToDone(files.shift(), this.files.dest, () => this.watch(files));                
             }).bind(this));
@@ -107,7 +114,7 @@ module.exports = class CsvObject {
                 if(files.length > 0){
                     this.readerEvent.removeAllListeners('finish');
                     
-                    this._callbackFinish(this.indexRows);
+                    this._callbackFinish && this._callbackFinish(this.indexRows);
 
                     files.shift(); 
                     
@@ -148,7 +155,7 @@ module.exports = class CsvObject {
         return this;
     }    
 
-    read(cb){
+    read(cb, canRead = false){
         if (this.reader.hasNextLine()) {
             return new Promise(resolve => {
                 this.reader.nextLine((err, line) => {
@@ -159,19 +166,33 @@ module.exports = class CsvObject {
                 if(line){
                     let cols = line.toString().split(this.separator);
                     
-                    if(this.indexRows === 0 && this.header.length === 0){
-                        this.setHeader(cols);
-                        this.indexRows++;
-                        
-                        return;
-                    } else {
+                    if(this.indexRows === 0 && this.firstLine){
+                        if(this.header.length === 0){
+                            this.header = cols;
+                            canRead = false;
+                        }
+                        else {
+                            this.setModel(cols);
+                            
+                            cb(this.model, this.indexRows);
+                            
+                            canRead = true;
+                            this.indexRows++;
+                        }                        
+
+                        return canRead;
+                    } else if(canRead){
                         this.setModel(cols);
                         
-                        return cb(this.model, parseInt(++this.indexRows));
-                    }                     
+                        cb(this.model, this.indexRows++);
+
+                        return canRead;
+                    } else {
+                        return !canRead;
+                    }
                 }
             })
-            .then(() => this.read(cb));                
+            .then(cr => this.read(cb, cr));
         } else {
             this.reader.close(((err) => {
                 if (err) throw err;
@@ -191,15 +212,11 @@ module.exports = class CsvObject {
             
             return keys.reduce((prevKey, crrKey) => {
                 return {
-                    [crrKey]: typeof prevKey === 'string' && fn ? fn[colHeader](prevKey) : prevKey
+                    [crrKey]: typeof prevKey === 'string' && fn && this.format ? fn[colHeader](prevKey) : prevKey
                 }
             }, cols[indexHeader]);
         });
     
         this.model = deepmerge.all(arrObjects);
-    }    
-
-    setHeader(cols){
-        this.header = cols;
     }
 }
