@@ -7,7 +7,7 @@ A super csv file reader/object parser.
 
 ## Install
 
-$ npm install csv-object --save
+	$ npm install csv-object --save
 
   
 
