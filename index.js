@@ -118,7 +118,7 @@ module.exports = class CsvObject {
 
                     files.shift(); 
                     
-                    this.iterate(files);
+                    return this.iterate(files);
                 }
             }).bind(this));
         }
@@ -142,9 +142,8 @@ module.exports = class CsvObject {
     }
 
     forEach(cb){
-        this.readerEvent.on('ready', (() => {            
-            this.read(cb)
-        }).bind(this));
+        this.readerEvent
+            .on('ready', (() => this.read(cb)).bind(this));
 
         return this;
     }
