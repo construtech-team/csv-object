@@ -169,23 +169,37 @@ module.exports = class CsvObject {
                         if(this.header.length === 0){
                             this.header = cols;
                             canRead = false;
+
+                            return canRead;
                         }
                         else {
                             this.setModel(cols);
                             
-                            cb(this.model, this.indexRows);
-                            
                             canRead = true;
-                            this.indexRows++;
-                        }                        
+                            
+                            if(!cb.then){
+                                cb(this.model, this.indexRows);
+                                
+                                return canRead;
+                            }
+                            
+                            return cb(this.model, this.indexRows).then(() => {                                
+                                this.indexRows++;
 
-                        return canRead;
-                    } else if(canRead){
+                                return canRead;
+                            });
+                            
+                        }
+                    } else if(canRead){                        
                         this.setModel(cols);
                         
-                        cb(this.model, this.indexRows++);
+                        if(!cb.then){
+                            cb(this.model, this.indexRows++);
 
-                        return canRead;
+                            return canRead;
+                        }
+
+                        return cb(this.model, this.indexRows++).then(() => canRead)
                     } else {
                         return !canRead;
                     }
